@@ -61,12 +61,22 @@ namespace XendFinanceSDK.Service
 
                 var depositReceipt = await depositFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, gasLimit, gasPrice, null, cancellationTokenSource, newDepositAmount);
 
-
-                return new Response
+                if ((int)depositReceipt.Status.Value == 1)
                 {
-                    status = true,
-                    data = depositReceipt
-                };
+                    return new Response
+                    {
+                        status = true,
+                        data = depositReceipt.Status.Value
+                    };
+                }
+                else
+                {
+                    return new Response
+                    {
+                        status = false,
+                        data = depositReceipt.Status.Value
+                    };
+                }
 
             }
             catch (Exception ex)
@@ -114,11 +124,23 @@ namespace XendFinanceSDK.Service
 
 
                 var withdrawalReceipt = await withdrawFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, gasLimit, gasPrice, null,cancellationTokenSource, withdrawalAmount.ToString());
-                return new Response
+
+                if ((int)withdrawalReceipt.Status.Value == 1)
                 {
-                    status = true,
-                    data = withdrawalReceipt
-                };
+                    return new Response
+                    {
+                        status = true,
+                        data = withdrawalReceipt.Status.Value
+                    };
+                }
+                else
+                {
+                    return new Response
+                    {
+                        status = false,
+                        data = withdrawalReceipt.Status.Value
+                    };
+                }
 
             }
             catch (Exception ex)

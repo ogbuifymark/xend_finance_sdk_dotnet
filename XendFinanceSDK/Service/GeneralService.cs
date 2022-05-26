@@ -52,11 +52,22 @@ namespace XendFinanceSDK.Service
 
                 var approvalReceipt = await approveFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, gasLimit, gasPrice, null, cancellationTokenSource, layer2TokenInfo.protocolAddress, newDepositAmount);
 
-                return new Response
+                if ((int)approvalReceipt.Status.Value == 1)
                 {
-                    status = true,
-                    data = approvalReceipt
-                };
+                    return new Response
+                    {
+                        status = true,
+                        data = approvalReceipt.Status.Value
+                    };
+                }
+                else
+                {
+                    return new Response
+                    {
+                        status = false,
+                        data = approvalReceipt.Status.Value
+                    };
+                }
 
             }
             catch (Exception ex)
@@ -88,11 +99,22 @@ namespace XendFinanceSDK.Service
 
 
                 var approvalReceipt = await approveFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, gasLimit, gasPrice, cancellationTokenSource, senderAddress, newDepositAmount);
-                return new Response
+                if ((int)approvalReceipt.Status.Value == 1)
                 {
-                    status = true,
-                    data = approvalReceipt
-                };
+                    return new Response
+                    {
+                        status = true,
+                        data = approvalReceipt.Status.Value
+                    };
+                }
+                else
+                {
+                    return new Response
+                    {
+                        status = false,
+                        data = approvalReceipt.Status.Value
+                    };
+                }
 
             }
             catch (Exception ex)

@@ -1,5 +1,6 @@
 ﻿using Nethereum.Contracts;
 using Nethereum.Hex.HexTypes;
+using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
 using System;
 using System.Collections.Generic;
@@ -68,12 +69,24 @@ namespace XendFinanceSDK.Service
                 HexBigInteger gasPrice = new HexBigInteger(BigInteger.Parse((5 *Math.Pow(10, 9)).ToString())); // 5 Gwei
 
 
-                var depositReceipt = await depositFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, gasLimit, gasPrice, null, cancellationTokenSource,  newDepositAmount);
-                return new Response
+                TransactionReceipt depositReceipt = await depositFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, gasLimit, gasPrice, null, cancellationTokenSource,  newDepositAmount);
+                if ((int)depositReceipt.Status.Value == 1)
                 {
-                    status = true,
-                    data = depositReceipt
-                };
+                    return new Response
+                    {
+                        status = true,
+                        data = depositReceipt.Status.Value
+                    };
+                }
+                else
+                {
+                    return new Response
+                    {
+                        status = false,
+                        data = depositReceipt.Status.Value
+                    };
+                }
+                
 
             }
             catch (Exception ex)
@@ -124,11 +137,22 @@ namespace XendFinanceSDK.Service
 
 
                 var withdrawalReceipt = await withdrawFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, gasLimit, gasPrice, null, cancellationTokenSource, newAmount, senderAddress,0);
-                return new Response
+                if ((int)withdrawalReceipt.Status.Value == 1)
                 {
-                    status = true,
-                    data = withdrawalReceipt
-                };
+                    return new Response
+                    {
+                        status = true,
+                        data = withdrawalReceipt.Status.Value
+                    };
+                }
+                else
+                {
+                    return new Response
+                    {
+                        status = false,
+                        data = withdrawalReceipt.Status.Value
+                    };
+                }
 
             }
             catch (Exception ex)

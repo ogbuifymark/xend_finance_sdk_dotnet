@@ -26,10 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\ContractFunctions\OutputFunctions\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Abi\ApyPoolBSCV2.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
