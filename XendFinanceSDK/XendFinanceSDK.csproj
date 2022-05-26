@@ -1,0 +1,92 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Authors>Markanthony Ogbuify</Authors>
+    <Company>Xend Tech</Company>
+    <Description>Build applications on-top of the Xend Finance Smart Contract Protocols.</Description>
+    <PackageTags>xend, xend-finance, xendfinance</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+
+
+  <ItemGroup>
+    <File Include="contentFiles\ClientRecord.json" />
+    <File Include="contentFiles\DaiContract.json" />
+    <File Include="contentFiles\Groups.json" />
+    <File Include="contentFiles\ProtocolAdapter.json" />
+    <File Include="contentFiles\XenFinanceIndividual_Yearn_V1.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nethereum.Contracts" Version="4.3.0" />
+    <PackageReference Include="Nethereum.Web3" Version="4.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\ContractFunctions\OutputFunctions\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Abi\ApyPoolBSCV2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\APYPoolMaticV2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\Busd.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\DaiContract.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\ERC20.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\XVaultBUSDV2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\XVaultStrategyABI.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\XVaultUSDCV2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\XVaultUSDTV2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\xvAutoAAVEV2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\xvAutoBNBV2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\xvAutoBUSDV2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\xvAutoUSDCV2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\xvAutoUSDTV2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\xvAutoWBTCV2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\xvMaticAutoAAVEV2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\xvMaticAutoUSDCV2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\xvMaticAutoUSDTV2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Abi\xvMaticAutoWBTCV2.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
