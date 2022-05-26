@@ -14,7 +14,7 @@ Build applications on-top of the Xend Finance Smart Contract Protocols.
 
 #How to use the sdk
 
-Below is a code snippet to guild you on how to use the sdk
+Below is a code snippet to guild you on how to use the sdk also you can view example https://github.com/ogbuifymark/xend_finance_sdk_dotnet/blob/main/SdkClient/Program.cs
 ```
 using NUnit.Framework;
 using System;
