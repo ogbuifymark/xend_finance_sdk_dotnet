@@ -9,4 +9,11 @@ namespace XendFinanceSDK.Models
         public bool status { get; set; }
         public dynamic data { get; set; }
     }
+    public class TransactionResponse
+    {
+        public bool IsSuccessful { get; set; }
+        public string BlockHash { get; set; }
+        public string TransactionHash { get; set; }
+        public string message { get; set; }
+    }
 }

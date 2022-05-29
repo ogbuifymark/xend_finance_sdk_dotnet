@@ -12,14 +12,14 @@ namespace SdkClient
         {
             Console.WriteLine("Hello World!");
             int chainId = 56;
-            string privateKey = "XXX";
+            string privateKey = "c9623d71c852502b31a09db0f72bc1b900d50bb3f330fee1a77606e68a622d5b";
             
             Init init = new Init(chainId, privateKey);
             //xautoDeposit(init, "BUSD", 0.01m);
-            //xautoWithdrawal(init, "BUSD", 0.01m);
-            xvaltWithdrawal(init, "BUSD", 0.01m);
+            xautoWithdrawal(init, "BUSD", 0.01m);
+            //xvaltWithdrawal(init, "BUSD",00 0.00001m);
             //xvaltDeposit(init, "BUSD", 0.01m);
-            
+
 
             Console.WriteLine("finished");
         }
