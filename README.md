@@ -37,7 +37,8 @@ Build applications on-top of the Xend Finance Smart Contract Protocols.
 Then after registring the sdk in your Startup.cs class, 
 Then you can go ahead to use the sdk in you controllers or services. you can inject `IXvaltService` and `IXAutoService` in your costructor. and then call the function you want to call. e.g
 
-```string transactionHash = xautoServer.DepositAsync((int)ChainIds.BSCMainnet, 0.01m, "BUSD", cancellationToken).Result;
+```
+string transactionHash = xautoServer.DepositAsync((int)ChainIds.BSCMainnet, 0.01m, "BUSD", cancellationToken).Result;
 ```
 Or
 ```
