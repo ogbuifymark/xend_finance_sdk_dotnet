@@ -14,60 +14,32 @@ Build applications on-top of the Xend Finance Smart Contract Protocols.
 
 #How to use the sdk
 
-Below is a code snippet to guild you on how to use the sdk also you can view example https://github.com/ogbuifymark/xend_finance_sdk_dotnet/blob/main/SdkClient/Program.cs
+ On your Startup.cs class, you have to add the sdk as a service by either doing this 
+
+ ```
+    services.AddXendFinanceSdk("your_privateKey");
+ ```
+ 
+ Or 
 ```
-using NUnit.Framework;
-using System;
-using XendFinanceSDK;
-using XendFinanceSDK.Models;
+    // Environment in this case is an Enum BlockchainEnvironment which has values Mainnet = 1 and Testnet=2
+    // GasPriceLevel is an optional field
+    services.AddXendFinanceSdk("your_privateKey", environment, GasPriceLevel);
+ ```
+ Or
 
-namespace SdkClient
-{
-    class Program
-    {
+ ```
+    // Environment in this case is an Enum BlockchainEnvironment which has values Mainnet = 1 and Testnet=2
+    // GasPriceLevel is an optional field
+    services.AddXendFinanceSdk("your_privateKey", bscNodeUrl, polygonNodeUrl,bscGasEstimateUrl, polygonGasEstimateUrl,environment,GasPriceLevel );
+ ```
 
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-            int chainId = 56; // this is for Bsc mainnet 
-            string privateKey = "XXX";
-            
-            Init init = new Init(chainId, privateKey);
-            //xautoDeposit(init, "BUSD", 0.01m);
-            //xautoWithdrawal(init, "BUSD", 0.01m);
-            xvaltWithdrawal(init, "BUSD", 0.01m);
-            //xvaltDeposit(init, "BUSD", 0.01m);
-            
+Then after registring the sdk in your Startup.cs class, 
+Then you can go ahead to use the sdk in you controllers or services. you can inject `IXvaltService` and `IXAutoService` in your costructor. and then call the function you want to call. e.g
 
-            Console.WriteLine("finished");
-        }
-        static void xautoDeposit(Init init, string token, decimal amount)
-        {
-            // for this first call approval before calling the deposit function
-            Response aproveResponse = init.ApproveXAutoTransaction(token, amount).Result;
-            Response xAutoDeposit = init.XAutoDepositTransaction(token, amount).Result;
-  
-        }
-
-        static void xvaltDeposit(Init init, string token, decimal amount)
-        {
-            // for this first call approval before calling the deposit function
-            Response aproveResponse = init.ApproveXValutTransaction(token, amount).Result;
-            Response xValuDeposit = init.XValtDepositTransaction(token, amount).Result;
-
-        }
-
-        static void xautoWithdrawal(Init init, string token, decimal amount)
-        {
-            Response xautowithdraw = init.XAutoWithdrawTransaction(token, amount).Result;
-            Assert.AreEqual(xautowithdraw.status, true);
-        }
-
-        static void xvaltWithdrawal(Init init, string token, decimal amount)
-        {
-            Response xvaultwithraw = init.XValtWithdraawTransaction(token, amount).Result;
-            Assert.AreEqual(xvaultwithraw.status, true);
-        }
-    }
-}
+```string transactionHash = xautoServer.DepositAsync((int)ChainIds.BSCMainnet, 0.01m, "BUSD", cancellationToken).Result;
+```
+Or
+```
+TransactionResponse transactionResponse = xvaltService.GetAPYAsync("BUSD", (int)ChainIds.BSCMainnet).Result;
 ```

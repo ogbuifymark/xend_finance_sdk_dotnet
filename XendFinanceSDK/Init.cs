@@ -1,106 +1,91 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
-using XendFinanceSDK.Environment;
 using XendFinanceSDK.Models;
 using XendFinanceSDK.Service;
 using XendFinanceSDK.Service.Interfaces;
 using XendFinanceSDK.Util;
 using XendFinanceSDK.Util.Interface;
+using static XendFinanceSDK.Models.Enums;
 
 namespace XendFinanceSDK
 {
-    public class Init
+    public static class Init
     {
-        public readonly IvaltService _xvaltService;
-        public readonly IvaltService _xautotService;
-        int _chainId;
-        string _privateKey;
-        NETWORKS _network;
-        Assets _assets;
-        string _protocols;
-        IWeb3Client _web3Client;
-        IGeneralService _generalService;
-
-        public Init(int chainId, string privateKey)
+        public static void AddXendFinanceSdk(this IServiceCollection services,
+                                             string privateKey,
+                                             GasPriceLevel gasPriceLevel = GasPriceLevel.Average)
         {
-            _chainId = chainId;
-            _privateKey = privateKey;
-            _network = checkChainId(chainId);
-            _web3Client = new Web3Client(_network.url);
-            _assets = new Assets();
-            _generalService = new GeneralService(_network.url, _assets, privateKey, chainId.ToString(), _web3Client);
-            _xvaltService = new XvaltService(_network.url, _assets,privateKey, chainId.ToString(), _web3Client);
-            _xautotService = new XAutoService(_network.url, _assets, privateKey, chainId.ToString(), _web3Client);
-
-        }
-        public async Task<Response> ApproveXAutoTransaction( string token, decimal amount)
-        {
-            return await _generalService.Approve(amount, token, "xAuto");
-        }
-        public async Task<Response> ApproveXValutTransaction(string token, decimal amount )
-        {
-            return await _generalService.Approve(amount, token, "xVault");
-        }
-        public async Task<Response> XVaultPricePerFullShare(string token)
-        {
-            return await _generalService.GetPricePerFullShare( token, "xVault");
-        }
-        public async Task<Response> XAutoPricePerFullShare(string token)
-        {
-            return await _generalService.GetPricePerFullShare(token, "xAuto");
-        }
-        public async Task<Response> XAutoShareBalance(string token)
-        {
-            return await _generalService.GetShareBalance(token, "xAuto");
-        }
-        public async Task<Response> XValtShareBalance(string token)
-        {
-            return await _generalService.GetPricePerFullShare(token, "xVault");
-        }
-        public async Task<Response> XAutoDepositTransaction(string token, decimal amount)
-        {
-            //await _generalService.ApproveSederAddress(amount, token, "xAuto");
-            return await _xautotService.Deposit(amount, token);
+            services.AddHttpClient();
+            RegisterServices(services, GasEstimateUrls.BSCGasEstimateUrl, GasEstimateUrls.PolygonGasEstimateUrl);
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            services.AddSingleton<IWeb3Client>(x => new Web3Client(privateKey, ChainIds.BSCMainnet, ChainIds.PolygonMainnet, RPCNodeUrls.BSC_MAINNET, RPCNodeUrls.POLYGON_MAINNET, gasPriceLevel, (IGasEstimatorService)serviceProvider.GetService(typeof(IGasEstimatorService))));
         }
 
-        public async Task<Response> XValtDepositTransaction(string token, decimal amount)
+        public static void AddXendFinanceSdk(this IServiceCollection services,
+                                             string privateKey,
+                                             BlockchainEnvironment environment,
+                                             GasPriceLevel gasPriceLevel = GasPriceLevel.Average
+                                             )
         {
-            return await _xvaltService.Deposit(amount, token);
-        }
-        public async Task<Response> XAutoWithdrawTransaction(string token, decimal amount)
-        {
-            return await _xautotService.Withdrawal(amount, token);
-        }
-        public async Task<Response> XValtWithdraawTransaction(string token, decimal amount)
-        {
-            return await _xvaltService.Withdrawal(amount, token);
-        }
-        private NETWORKS checkChainId(int chainId)
-        {
+            services.AddHttpClient();
+            RegisterServices(services, GasEstimateUrls.BSCGasEstimateUrl, GasEstimateUrls.PolygonGasEstimateUrl);
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-            switch (chainId)
+            switch (environment)
             {
-                case ChainIds.ETHEREUM_MAINNET:
-                    return Provider.ETHEREUM_MAINNET;
-
-                case ChainIds.BSC_TESTNET:
-                    return Provider.BSC_TESTNET;
-
-                case ChainIds.BSC_MAINNET:
-                    return Provider.BSC_MAINNET;
-
-                case ChainIds.LOCALHOST:
-                    return Provider.LOCALHOST;
-
-                default: return Provider.LOCALHOST;
+                case BlockchainEnvironment.Mainnet:
+                    services.AddSingleton<IWeb3Client>(x => new Web3Client(privateKey, ChainIds.BSCMainnet, ChainIds.PolygonMainnet, RPCNodeUrls.BSC_MAINNET, RPCNodeUrls.POLYGON_MAINNET, gasPriceLevel, (IGasEstimatorService)serviceProvider.GetService(typeof(IGasEstimatorService))));
+                    break;
+                case BlockchainEnvironment.Testnet:
+                    services.AddSingleton<IWeb3Client>(x => new Web3Client(privateKey, ChainIds.BSCTestnet, ChainIds.PolygonTestnet, RPCNodeUrls.BSC_TESTNET, RPCNodeUrls.POLYGON_TESTNET, gasPriceLevel, (IGasEstimatorService)serviceProvider.GetService(typeof(IGasEstimatorService))));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("Found unsupported blochchain environment");
             }
-
         }
 
+
+        public static void AddXendFinanceSdk(this IServiceCollection services,
+                                            string privateKey,
+                                            string bscNodeUrl,
+                                            string polygonNodeUrl,
+                                            string bscGasEstimateUrl,
+                                            string polygonGasEstimateUrl,
+                                            BlockchainEnvironment environment = BlockchainEnvironment.Mainnet,
+                                            GasPriceLevel gasPriceLevel = GasPriceLevel.Average
+                                            )
+        {
+            services.AddHttpClient();
+            RegisterServices(services, GasEstimateUrls.BSCGasEstimateUrl, GasEstimateUrls.PolygonGasEstimateUrl);
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+
+            switch (environment)
+            {
+                case BlockchainEnvironment.Mainnet:
+                    services.AddSingleton<IWeb3Client>(x => new Web3Client(privateKey, ChainIds.BSCMainnet, ChainIds.PolygonMainnet, bscNodeUrl ?? RPCNodeUrls.BSC_MAINNET, polygonNodeUrl ?? RPCNodeUrls.POLYGON_MAINNET, gasPriceLevel, (IGasEstimatorService)serviceProvider.GetService(typeof(IGasEstimatorService))));
+                    break;
+                case BlockchainEnvironment.Testnet:
+                    services.AddSingleton<IWeb3Client>(x => new Web3Client(privateKey, ChainIds.BSCTestnet, ChainIds.PolygonTestnet, bscNodeUrl ?? RPCNodeUrls.BSC_TESTNET, polygonNodeUrl ?? RPCNodeUrls.POLYGON_TESTNET, gasPriceLevel, (IGasEstimatorService)serviceProvider.GetService(typeof(IGasEstimatorService))));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("Found unsupported blochchain environment");
+            }
+        }
+
+        private static void RegisterServices(IServiceCollection services, string bscGasEstimateUrl, string polygonGasEstimateUrl)
+        {
+            services.AddSingleton<IGasEstimatorService>(x =>
+            {
+                IHttpClientFactory httpClientFactory = x.GetRequiredService<IHttpClientFactory>();
+                return new GasEstimatorService(bscGasEstimateUrl, polygonGasEstimateUrl, httpClientFactory);
+            });
+            services.AddTransient<IXvaltService, XvaltService>();
+            services.AddTransient<IXAutoService, XAutoService>();
+        }
 
     }
-
 }
+

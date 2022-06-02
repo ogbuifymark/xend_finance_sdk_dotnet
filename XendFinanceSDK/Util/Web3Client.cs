@@ -9,127 +9,184 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using XendFinanceSDK.Environment;
+using XendFinanceSDK.Models;
 using XendFinanceSDK.Util.Interface;
+using static XendFinanceSDK.Models.Enums;
 
+
+[assembly: InternalsVisibleTo("XendFinanceSDKTest")]
 namespace XendFinanceSDK.Util
 {
-
-    public class Web3Client : IWeb3Client
+    internal sealed class Web3Client : IWeb3Client
     {
-        private Web3 Web3;
-        private readonly string NodeUrl;
+        private readonly Web3 _bscWeb3;
+        private readonly Web3 _polygonWeb3;
+        private Account _bscAccount;
+        private Account _polygonAccount;
+        private GasPriceLevel _gasPriceLevel;
+        private IGasEstimatorService _gasEstimatorService;
+        private string _privateKey;
 
-        public Web3Client(string nodeUrl)
+        public Web3Client(string privateKey, BigInteger bscChainId, BigInteger polygonChainId, string bscNodeUrl, string polygonNodeUrl, GasPriceLevel gasPriceLevel, IGasEstimatorService gasEstimatorService)
         {
-            NodeUrl = nodeUrl;
+            _privateKey = privateKey;
+            _bscAccount = new Account(privateKey, bscChainId);
+            _polygonAccount = new Account(privateKey, polygonChainId);
+            _bscWeb3 = new Web3(_bscAccount, bscNodeUrl);
+            _polygonWeb3 = new Web3(_polygonAccount, polygonNodeUrl);
+            _gasPriceLevel = gasPriceLevel;
+            _gasEstimatorService = gasEstimatorService;
         }
 
 
 
-        public async Task<IEnumerable<EventLog<TEventMessage>>> GetEvents<TEventMessage>(string contractAddress, ulong startBlock, ulong endBlock) where TEventMessage : IEventDTO, new()
+        public async Task<IEnumerable<EventLog<TEventMessage>>> GetEvents<TEventMessage>(int chainId, string contractAddress, ulong startBlock, ulong endBlock) where TEventMessage : IEventDTO, new()
         {
-            InitializeWeb3();
             BlockParameter startBlockParameter = new BlockParameter(startBlock);
             BlockParameter endBlockParameter = new BlockParameter(endBlock);
-
-            Event<TEventMessage> handler = Web3.Eth.GetEvent<TEventMessage>(contractAddress);
+            Web3 web3 = GetWeb3Instance(chainId);
+            Event<TEventMessage> handler = web3.Eth.GetEvent<TEventMessage>(contractAddress);
             NewFilterInput filterInput = handler.CreateFilterInput(startBlockParameter, endBlockParameter);
 
             IEnumerable<EventLog<TEventMessage>> events = await handler.GetAllChangesAsync(filterInput);
             return events;
         }
 
-        public async Task<ulong> GetLatestBlock()
+        public async Task<ulong> GetLatestBlock(int chainId)
         {
-            InitializeWeb3();
-
-            HexBigInteger blockNumberHex = await Web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
+            Web3 web3 = GetWeb3Instance(chainId);
+            HexBigInteger blockNumberHex = await web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
             return ulong.Parse(blockNumberHex.Value.ToString());
         }
 
-        //public async Task<string> GetTokenUri(BigInteger tokenid, string contractAddress)
-        //{
-        //    InitializeWeb3();
-
-        //    GetTokenUriFunction tokenUriFunctionMessage = new GetTokenUriFunction
-        //    {
-        //        TokenId = tokenid
-        //    };
-
-        //    var tokenUriHandler = Web3.Eth.GetContractQueryHandler<GetTokenUriFunction>();
-        //    string tokenUri = await tokenUriHandler.QueryAsync<string>(contractAddress, tokenUriFunctionMessage);
-        //    return tokenUri;
-        //}
-
-        public async Task<ulong> GetBlockTimeStamp(ulong blockNumber)
+        public async Task<ulong> GetBlockTimeStamp(int chainId, ulong blockNumber)
         {
-            InitializeWeb3();
-
+            Web3 web3 = GetWeb3Instance(chainId);
             BlockParameter blockParameter = new BlockParameter(blockNumber);
-            BlockWithTransactions blockWithTransactions = await Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(blockParameter);
+            BlockWithTransactions blockWithTransactions = await web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(blockParameter);
             ulong blockTimeStamp = ulong.Parse(blockWithTransactions.Timestamp.Value.ToString());
             return blockTimeStamp;
         }
-
-        public async Task<T> CallContract<T>(string contractAddress, string abi, string functionName, params object[] functionInput) where T : IFunctionOutputDTO, new()
+        public async Task<string> SendTransactionAsync(int chainId, string contractAddress, string abi, string functionName, GasPriceLevel? gasPriceLevel, params object[] functionInput)
         {
-            Contract contract = GetContract(contractAddress, abi);
+            Contract contract = GetContract(chainId, contractAddress, abi);
+            Account account = GetAccountInstance(chainId);
             var function = contract.GetFunction(functionName);
-            T response = await function.CallDeserializingToObjectAsync<T>(functionInput);
-            return response;
+            var gas = await function.EstimateGasAsync(account.Address, null, null, functionInput);
+            HexBigInteger gasPrice = await GetGasPrice(chainId, gasPriceLevel);
+            HexBigInteger gasPriceWei = new HexBigInteger(BigInteger.Parse(((int)gasPrice.Value * Math.Pow(10, 9)).ToString())); // 5 Gwei
+            string transactionHash = await function.SendTransactionAsync(account.Address, gas, gasPriceWei, null, functionInput);
+            return transactionHash;
         }
 
-        public async Task<T> CallContract<T>(string contractAddress, string abi, string functionName, string from, params object[] functionInput) where T : IFunctionOutputDTO, new()
-        {
-            Contract contract = GetContract(contractAddress, abi);
-            var function = contract.GetFunction(functionName);
-            T response = await function.CallDeserializingToObjectAsync<T>(from, null, null, functionInput);
-            return response;
-        }
 
-        public async Task<T> CallContract<T, W>(string contractAddress, W inputFunction) where W : FunctionMessage, new() where T : class, new()
+        public async Task<TransactionResponse> SendTransactionAndWaitForReceiptAsync(int chainId, string contractAddress, string abi, string functionName, GasPriceLevel? gasPriceLevel, CancellationTokenSource cancellationToken, params object[] functionInput)
         {
-            InitializeWeb3();
-            ContractHandler contractHandler = Web3.Eth.GetContractHandler(contractAddress);
-            return await contractHandler.QueryAsync<W, T>(inputFunction);
-        }
-
-        private void InitializeWeb3()
-        {
-            if (Web3 == null)
+            try
             {
-                Web3 = new Web3(url: NodeUrl);
+                Contract contract = GetContract(chainId, contractAddress, abi);
+                Account account = GetAccountInstance(chainId);
+                var function = contract.GetFunction(functionName);
+                var gas = await function.EstimateGasAsync(account.Address, null, null, functionInput);
+                HexBigInteger gasPrice = await GetGasPrice(chainId, gasPriceLevel);
+                HexBigInteger gasPriceWei = new HexBigInteger(BigInteger.Parse(((int)gasPrice.Value * Math.Pow(10, 9)).ToString())); // 5 Gwei
+
+                TransactionReceipt txReceipt = await function.SendTransactionAndWaitForReceiptAsync(account.Address, gas, gasPriceWei, null, cancellationToken, functionInput);
+                bool isSuccessful = txReceipt.Status == new HexBigInteger(1);
+                return new TransactionResponse
+                {
+                    IsSuccessful = isSuccessful,
+                    TransactionHash = txReceipt.TransactionHash,
+                    BlockHash = txReceipt.BlockHash
+                };
             }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+            
         }
 
-        private Contract GetContract(string contractAddress, string abi)
+
+        public Contract GetContract(int chainId, string contractAddress, string abi)
         {
             contractAddress = AddressValidator.ValidateAddress(contractAddress);
-            Web3 web3 = new Web3(NodeUrl);
-            Contract contract = web3.Eth.GetContract(abi, contractAddress);
-            return contract;
-        }
-        public async Task<Contract> CreateContract(string provider, string chainId, string Abiname, string contractAddress, string privateKey)
-        {
+            Web3 web3 = GetWeb3Instance(chainId);
             string json = "";
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "Abi", Abiname);
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "Abi", abi);
             using (StreamReader r = new StreamReader(path))
             {
                 json = r.ReadToEnd();
             }
-            Account account = new Account(privateKey, BigInteger.Parse(chainId));
-
-            Web3 web3 = new Web3(account, provider);
-            web3.TransactionManager.UseLegacyAsDefault = true;
             Contract contract = web3.Eth.GetContract(json, contractAddress);
             return contract;
         }
-        public async Task<string> PrivateKeyToAddress(string privateKey)
+
+        private async Task<HexBigInteger> GetGasPrice(int chainId, GasPriceLevel? gasPriceLevel)
         {
-            Account account = new Account(privateKey);
+            GasEstimateResponse gasEstimateResponse = await _gasEstimatorService.EstimateGas(chainId);
+            if (!gasPriceLevel.HasValue)
+            {
+                gasPriceLevel = _gasPriceLevel;
+            }
+
+            switch (gasPriceLevel.Value)
+            {
+                case GasPriceLevel.Slow:
+                    return new HexBigInteger(new BigInteger(gasEstimateResponse.LowGas));
+                case GasPriceLevel.Average:
+                    return new HexBigInteger(new BigInteger(gasEstimateResponse.AverageGas));
+                case GasPriceLevel.Fast:
+                    return new HexBigInteger(new BigInteger(gasEstimateResponse.FastGas));
+                default:
+                    throw new ArgumentOutOfRangeException("Unsupported Gas Price Level");
+            }
+        }
+
+
+        public async Task<string> PrivateKeyToAddress()
+        {
+            Account account = new Account(_privateKey);
             return account.Address;
         }
+        private Account GetAccountInstance(int chainId)
+        {
+            switch (chainId)
+            {
+                case (int)ChainId.BSCMainnet:
+                    return _bscAccount;
+                case (int)ChainId.BSCTestnet:
+                    return _bscAccount;
+                case (int)ChainId.PolygonMainnet:
+                    return _polygonAccount;
+                default:
+                    throw new ArgumentOutOfRangeException("Unsupported Network Chain");
+            }
+        }
+
+      
+        private Web3 GetWeb3Instance(int chainId)
+        {
+            switch (chainId)
+            {
+                case (int)ChainId.BSCMainnet:
+                    return _bscWeb3;
+                case (int)ChainId.BSCTestnet:
+                    return _bscWeb3;
+                case (int)ChainId.PolygonMainnet:
+                    return _polygonWeb3;
+                default:
+                    throw new ArgumentOutOfRangeException("Unsupported Network Chain");
+            }
+        }
+
+       
     }
 }
