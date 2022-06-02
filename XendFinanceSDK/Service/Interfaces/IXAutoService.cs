@@ -9,9 +9,9 @@ namespace XendFinanceSDK.Service.Interfaces
 {
     public interface IXAutoService
     {
-        Task<TransactionResponse> DepositAndWaitForReceiptAsync(decimal depositAmount, string tokenName, CancellationToken cancellationTokenSource);
-        Task<string> DepositAsync(decimal depositAmount, string tokenName, CancellationToken cancellationTokenSource);
-        Task<TransactionResponse> WithdrawalAndWaitForReceiptAsync(decimal amount, string tokenName, CancellationToken cancellationTokenSource);
-        Task<string> WithdrawalAsync(decimal amount, string tokenName, CancellationToken cancellationTokenSource);
+        Task<TransactionResponse> DepositAndWaitForReceiptAsync(int chainId, decimal depositAmount, string tokenName, CancellationTokenSource cancellationTokenSource);
+        Task<string> DepositAsync(int chainId, decimal depositAmount, string tokenName, CancellationTokenSource cancellationTokenSource);
+        Task<TransactionResponse> WithdrawalAndWaitForReceiptAsync(int chainId, decimal amount, string tokenName, CancellationTokenSource cancellationTokenSource);
+        Task<string> WithdrawalAsync(int chainId, decimal amount, string tokenName, CancellationTokenSource cancellationTokenSource);
     }
 }

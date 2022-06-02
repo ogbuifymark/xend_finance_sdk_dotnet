@@ -19,18 +19,15 @@ namespace XendFinanceSDK.Service
     public class XAutoService: IXAutoService
     {
 
-        string _privateKey;
-        int _chainId;
+
         IWeb3Client _web3Client;
         string protocolName = "xAuto";
         private Assets _assets;
-        public XAutoService( Assets assets, string privateKey, int chainId, IWeb3Client web3Client)
+        public XAutoService( IWeb3Client web3Client)
         {
 
-            _privateKey = privateKey;
-            _chainId = chainId;
             _web3Client = web3Client;
-            _assets = assets;
+            _assets = new Assets();
 
         }
         /// <summary>
@@ -41,17 +38,17 @@ namespace XendFinanceSDK.Service
         /// <param name="cancellationTokenSource">t</param>
 
         /// <returns>Returns an object(TransactionResponse) containing status and data</returns>
-        public async Task<TransactionResponse> DepositAndWaitForReceiptAsync(decimal depositAmount, string tokenName, CancellationToken cancellationTokenSource)
+        public async Task<TransactionResponse> DepositAndWaitForReceiptAsync(int chainId, decimal depositAmount, string tokenName, CancellationTokenSource cancellationTokenSource)
         {
             try
             {
-                Layer2TokenInfo layer2TokenInfo = _assets.FilterToken(tokenName, _chainId, protocolName);
+                Layer2TokenInfo layer2TokenInfo = _assets.FilterToken(tokenName, chainId, protocolName);
                 if (layer2TokenInfo == null)
                 {
                     throw new Exception("No token found");
                 }
-                string senderAddress = await _web3Client.PrivateKeyToAddress(_privateKey);
-                BigInteger newDepositAmount = Utility.FormatAmount(depositAmount, _chainId, tokenName);
+                string senderAddress = await _web3Client.PrivateKeyToAddress();
+                BigInteger newDepositAmount = Utility.FormatAmount(depositAmount, chainId, tokenName);
 
                 TransactionResponse transactionResponse = await _web3Client.SendTransactionAndWaitForReceiptAsync(layer2TokenInfo.network, layer2TokenInfo.tokenAddress, layer2TokenInfo.tokenAbi, "approve", GasPriceLevel.Average, cancellationTokenSource, layer2TokenInfo.protocolAddress, newDepositAmount);
                 if (!transactionResponse.IsSuccessful)
@@ -81,17 +78,17 @@ namespace XendFinanceSDK.Service
         /// <param name="cancellationTokenSource">t</param>
 
         /// <returns>Returns the transactionHash containing status and data</returns>
-        public async Task<string> DepositAsync(decimal depositAmount, string tokenName, CancellationToken cancellationTokenSource)
+        public async Task<string> DepositAsync(int chainId, decimal depositAmount, string tokenName, CancellationTokenSource cancellationTokenSource)
         {
             try
             {
-                Layer2TokenInfo layer2TokenInfo = _assets.FilterToken(tokenName, _chainId, protocolName);
+                Layer2TokenInfo layer2TokenInfo = _assets.FilterToken(tokenName, chainId, protocolName);
                 if (layer2TokenInfo == null)
                 {
                     throw new Exception("No token found");
                 }
-                string senderAddress = await _web3Client.PrivateKeyToAddress(_privateKey);
-                BigInteger newDepositAmount = Utility.FormatAmount(depositAmount, _chainId, tokenName);
+                string senderAddress = await _web3Client.PrivateKeyToAddress();
+                BigInteger newDepositAmount = Utility.FormatAmount(depositAmount, chainId, tokenName);
 
                 TransactionResponse transactionResponse = await _web3Client.SendTransactionAndWaitForReceiptAsync(layer2TokenInfo.network, layer2TokenInfo.tokenAddress, layer2TokenInfo.tokenAbi, "approve", GasPriceLevel.Average, cancellationTokenSource, layer2TokenInfo.protocolAddress, newDepositAmount);
                 if (!transactionResponse.IsSuccessful)
@@ -121,11 +118,11 @@ namespace XendFinanceSDK.Service
         /// <param name="cancellationTokenSource">t</param>
 
         /// <returns>Returns an object containing status and data</returns>
-        public async Task<TransactionResponse> WithdrawalAndWaitForReceiptAsync(decimal amount, string tokenName, CancellationToken cancellationTokenSource)
+        public async Task<TransactionResponse> WithdrawalAndWaitForReceiptAsync(int chainId, decimal amount, string tokenName, CancellationTokenSource cancellationTokenSource)
         {
             try
             {
-                Layer2TokenInfo layer2TokenInfo = _assets.FilterToken(tokenName, _chainId, protocolName);
+                Layer2TokenInfo layer2TokenInfo = _assets.FilterToken(tokenName, chainId, protocolName);
                 if (layer2TokenInfo == null)
                 {
                     throw new Exception("No token found");
@@ -133,12 +130,12 @@ namespace XendFinanceSDK.Service
 
 
 
-                string senderAddress = await _web3Client.PrivateKeyToAddress(_privateKey);
-                Contract contract = _web3Client.GetContract(_chainId, layer2TokenInfo.protocolAddress, layer2TokenInfo.protocolAbi);
+                string senderAddress = await _web3Client.PrivateKeyToAddress();
+                Contract contract = _web3Client.GetContract(chainId, layer2TokenInfo.protocolAddress, layer2TokenInfo.protocolAbi);
                 Function ppfsFunction = contract.GetFunction(layer2TokenInfo.ppfsMethod);
 
                 var ppfs = await ppfsFunction.CallAsync<long>();
-                var divisor = Math.Pow(10, layer2TokenInfo.widthdrawDecimals);
+                var divisor = Math.Pow(10, layer2TokenInfo.decimals);
 
                 BigInteger withdrawalAmount = ((BigInteger)((double)amount * Math.Pow(10, 18)) * (BigInteger)divisor) / ppfs;
 
@@ -163,11 +160,11 @@ namespace XendFinanceSDK.Service
         /// <param name="cancellationTokenSource">t</param>
 
         /// <returns>Returns an object containing status and data</returns>
-        public async Task<string> WithdrawalAsync(decimal amount, string tokenName, CancellationToken cancellationTokenSource)
+        public async Task<string> WithdrawalAsync(int chainId,decimal amount, string tokenName, CancellationTokenSource cancellationTokenSource)
         {
             try
             {
-                Layer2TokenInfo layer2TokenInfo = _assets.FilterToken(tokenName, _chainId, protocolName);
+                Layer2TokenInfo layer2TokenInfo = _assets.FilterToken(tokenName, chainId, protocolName);
                 if (layer2TokenInfo == null)
                 {
                     throw new Exception("No token found");
@@ -175,12 +172,12 @@ namespace XendFinanceSDK.Service
 
 
 
-                string senderAddress = await _web3Client.PrivateKeyToAddress(_privateKey);
-                Contract contract = _web3Client.GetContract(_chainId, layer2TokenInfo.protocolAddress, layer2TokenInfo.protocolAbi);
+                string senderAddress = await _web3Client.PrivateKeyToAddress();
+                Contract contract = _web3Client.GetContract(chainId, layer2TokenInfo.protocolAddress, layer2TokenInfo.protocolAbi);
                 Function ppfsFunction = contract.GetFunction(layer2TokenInfo.ppfsMethod);
 
                 BigInteger ppfs = await ppfsFunction.CallAsync<BigInteger>();
-                var divisor = Math.Pow(10, layer2TokenInfo.widthdrawDecimals);
+                var divisor = Math.Pow(10, layer2TokenInfo.decimals);
 
                 BigInteger withdrawalAmount = ((BigInteger)((double)amount * Math.Pow(10, 18)) * (BigInteger)divisor) / ppfs;
 

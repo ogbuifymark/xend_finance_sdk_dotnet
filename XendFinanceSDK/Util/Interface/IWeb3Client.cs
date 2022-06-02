@@ -20,8 +20,8 @@ namespace XendFinanceSDK.Util.Interface
         Task<ulong> GetLatestBlock(int chainId);
         Contract GetContract(int chainId, string contractAddress, string abi);
         Task<ulong> GetBlockTimeStamp(int chainId, ulong blockNumber);
-        Task<TransactionResponse> SendTransactionAndWaitForReceiptAsync(int chainId, string contractAddress, string abi, string functionName, GasPriceLevel? gasPriceLevel, CancellationToken cancellationToken, params object[] functionInput);
+        Task<TransactionResponse> SendTransactionAndWaitForReceiptAsync(int chainId, string contractAddress, string abi, string functionName, GasPriceLevel? gasPriceLevel, CancellationTokenSource cancellationToken, params object[] functionInput);
         Task<string> SendTransactionAsync(int chainId, string contractAddress, string abi, string functionName, GasPriceLevel? gasPriceLevel, params object[] functionInput);
-         Task<string> PrivateKeyToAddress(string privateKey);
+         Task<string> PrivateKeyToAddress();
     }
 }

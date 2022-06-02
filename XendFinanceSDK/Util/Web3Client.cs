@@ -9,16 +9,19 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using XendFinanceSDK.Environment;
 using XendFinanceSDK.Models;
 using XendFinanceSDK.Util.Interface;
 using static XendFinanceSDK.Models.Enums;
 
+
+[assembly: InternalsVisibleTo("XendFinanceSDKTest")]
 namespace XendFinanceSDK.Util
 {
-
     internal sealed class Web3Client : IWeb3Client
     {
         private readonly Web3 _bscWeb3;
@@ -27,9 +30,11 @@ namespace XendFinanceSDK.Util
         private Account _polygonAccount;
         private GasPriceLevel _gasPriceLevel;
         private IGasEstimatorService _gasEstimatorService;
+        private string _privateKey;
 
         public Web3Client(string privateKey, BigInteger bscChainId, BigInteger polygonChainId, string bscNodeUrl, string polygonNodeUrl, GasPriceLevel gasPriceLevel, IGasEstimatorService gasEstimatorService)
         {
+            _privateKey = privateKey;
             _bscAccount = new Account(privateKey, bscChainId);
             _polygonAccount = new Account(privateKey, polygonChainId);
             _bscWeb3 = new Web3(_bscAccount, bscNodeUrl);
@@ -72,29 +77,41 @@ namespace XendFinanceSDK.Util
             Contract contract = GetContract(chainId, contractAddress, abi);
             Account account = GetAccountInstance(chainId);
             var function = contract.GetFunction(functionName);
-            var gas = await function.EstimateGasAsync(functionInput);
+            var gas = await function.EstimateGasAsync(account.Address, null, null, functionInput);
             HexBigInteger gasPrice = await GetGasPrice(chainId, gasPriceLevel);
-            string transactionHash = await function.SendTransactionAsync(account.Address, gas, gasPrice, null, functionInput);
+            HexBigInteger gasPriceWei = new HexBigInteger(BigInteger.Parse(((int)gasPrice.Value * Math.Pow(10, 9)).ToString())); // 5 Gwei
+            string transactionHash = await function.SendTransactionAsync(account.Address, gas, gasPriceWei, null, functionInput);
             return transactionHash;
         }
 
 
-        public async Task<TransactionResponse> SendTransactionAndWaitForReceiptAsync(int chainId, string contractAddress, string abi, string functionName, GasPriceLevel? gasPriceLevel, CancellationToken cancellationToken, params object[] functionInput)
+        public async Task<TransactionResponse> SendTransactionAndWaitForReceiptAsync(int chainId, string contractAddress, string abi, string functionName, GasPriceLevel? gasPriceLevel, CancellationTokenSource cancellationToken, params object[] functionInput)
         {
-
-            Contract contract = GetContract(chainId, contractAddress, abi);
-            Account account = GetAccountInstance(chainId);
-            var function = contract.GetFunction(functionName);
-            var gas = await function.EstimateGasAsync(functionInput);
-            HexBigInteger gasPrice = await GetGasPrice(chainId, gasPriceLevel);
-            TransactionReceipt txReceipt = await function.SendTransactionAndWaitForReceiptAsync(account.Address, gas, gasPrice, null, cancellationToken, functionInput);
-            bool isSuccessful = txReceipt.Status == new HexBigInteger(1);
-            return new TransactionResponse
+            try
             {
-                IsSuccessful = isSuccessful,
-                TransactionHash = txReceipt.TransactionHash,
-                BlockHash = txReceipt.BlockHash
-            };
+                Contract contract = GetContract(chainId, contractAddress, abi);
+                Account account = GetAccountInstance(chainId);
+                var function = contract.GetFunction(functionName);
+                var gas = await function.EstimateGasAsync(account.Address, null, null, functionInput);
+                HexBigInteger gasPrice = await GetGasPrice(chainId, gasPriceLevel);
+                HexBigInteger gasPriceWei = new HexBigInteger(BigInteger.Parse(((int)gasPrice.Value * Math.Pow(10, 9)).ToString())); // 5 Gwei
+
+                TransactionReceipt txReceipt = await function.SendTransactionAndWaitForReceiptAsync(account.Address, gas, gasPriceWei, null, cancellationToken, functionInput);
+                bool isSuccessful = txReceipt.Status == new HexBigInteger(1);
+                return new TransactionResponse
+                {
+                    IsSuccessful = isSuccessful,
+                    TransactionHash = txReceipt.TransactionHash,
+                    BlockHash = txReceipt.BlockHash
+                };
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+            
         }
 
 
@@ -102,7 +119,13 @@ namespace XendFinanceSDK.Util
         {
             contractAddress = AddressValidator.ValidateAddress(contractAddress);
             Web3 web3 = GetWeb3Instance(chainId);
-            Contract contract = web3.Eth.GetContract(abi, contractAddress);
+            string json = "";
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "Abi", abi);
+            using (StreamReader r = new StreamReader(path))
+            {
+                json = r.ReadToEnd();
+            }
+            Contract contract = web3.Eth.GetContract(json, contractAddress);
             return contract;
         }
 
@@ -127,9 +150,10 @@ namespace XendFinanceSDK.Util
             }
         }
 
-        public async Task<string> PrivateKeyToAddress(string privateKey)
+
+        public async Task<string> PrivateKeyToAddress()
         {
-            Account account = new Account(privateKey);
+            Account account = new Account(_privateKey);
             return account.Address;
         }
         private Account GetAccountInstance(int chainId)
