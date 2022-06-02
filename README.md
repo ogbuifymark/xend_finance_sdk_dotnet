@@ -17,30 +17,48 @@ Build applications on-top of the Xend Finance Smart Contract Protocols.
  On your Startup.cs class, you have to add the sdk as a service by either doing this 
 
  ```
+    ...
     services.AddXendFinanceSdk("your_privateKey");
+    ...
  ```
  
  Or 
 ```
+    ...
     // Environment in this case is an Enum BlockchainEnvironment which has values Mainnet = 1 and Testnet=2
     // GasPriceLevel is an optional field
     services.AddXendFinanceSdk("your_privateKey", environment, GasPriceLevel);
+    ...
  ```
  Or
 
  ```
+    ...
     // Environment in this case is an Enum BlockchainEnvironment which has values Mainnet = 1 and Testnet=2
     // GasPriceLevel is an optional field
     services.AddXendFinanceSdk("your_privateKey", bscNodeUrl, polygonNodeUrl,bscGasEstimateUrl, polygonGasEstimateUrl,environment,GasPriceLevel );
+    ...
  ```
 
 Then after registring the sdk in your Startup.cs class, 
 Then you can go ahead to use the sdk in you controllers or services. you can inject `IXvaltService` and `IXAutoService` in your costructor. and then call the function you want to call. e.g
 
 ```
-string transactionHash = xautoServer.DepositAsync((int)ChainIds.BSCMainnet, 0.01m, "BUSD", cancellationToken).Result;
-```
-Or
-```
-TransactionResponse transactionResponse = xvaltService.GetAPYAsync("BUSD", (int)ChainIds.BSCMainnet).Result;
+...
+class YourClass{
+    private xautoServer;
+    private xvaltService;
+    YourClass(IXAutoService _xautoServer, IXvaltService _xvaltService){
+        xautoServer = _xautoServer; 
+        xvaltService = _xvaltService;
+    }
+    ...
+
+    public void YourFunction(){
+        string transactionHash = xautoServer.DepositAsync((int)ChainIds.BSCMainnet, 0.01m, "BUSD", cancellationToken).Result;
+        TransactionResponse transactionResponse = xvaltService.GetAPYAsync("BUSD", (int)ChainIds.BSCMainnet).Result;
+
+    }
+    ...
+}
 ```
