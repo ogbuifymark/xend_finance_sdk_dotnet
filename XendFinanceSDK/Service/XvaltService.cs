@@ -33,14 +33,15 @@ namespace XendFinanceSDK.Service
 
 
         /// <summary>
-        /// Deposit in Flexible savings
+        /// DepositAndWaitForReceiptAsync
         /// </summary>
+        /// <param name="chainId">this is the chain id of the network</param>
         /// <param name="depositAmount">this is the amount to be deposited</param>
-        /// <param name="tokenName">this is the amount to be deposited</param>
-        /// <param name="cancellationTokenSource">t</param>
+        /// <param name="tokenName">token name</param>
+        /// <param name="cancellationTokenSource">this is an optional field </param>
 
-        /// <returns>Returns an object(TransactionResponse) containing status and data</returns>
-        public async Task<TransactionResponse> DepositAndWaitForReceiptAsync(int chainId, decimal depositAmount, string tokenName, CancellationTokenSource cancellationTokenSource)
+        /// <returns>Returns an object(TransactionResponse)</returns>
+        public async Task<TransactionResponse> DepositAndWaitForReceiptAsync(int chainId, decimal depositAmount, string tokenName, CancellationTokenSource cancellationTokenSource = null)
         {
             try
             {
@@ -72,11 +73,12 @@ namespace XendFinanceSDK.Service
         }
 
         /// <summary>
-        /// Deposit in Flexible savings
+        /// DepositAsync 
         /// </summary>
+        /// <param name="chainId">this is the chain id of the network</param>
         /// <param name="depositAmount">this is the amount to be deposited</param>
-        /// <param name="tokenName">this is the amount to be deposited</param>
-        /// <param name="cancellationTokenSource">t</param>
+        /// <param name="tokenName">token name</param>
+        /// <param name="cancellationTokenSource">this is an optional field </param>
 
         /// <returns>Returns the transactionHash containing status and data</returns>
         public async Task<string> DepositAsync(int chainId, decimal depositAmount, string tokenName, CancellationTokenSource cancellationTokenSource)
@@ -112,12 +114,14 @@ namespace XendFinanceSDK.Service
 
 
         /// <summary>
-        /// Deposit in Flexible savings
+        /// WithdrawalAndWaitForReceiptAsync
         /// </summary>
-        /// <param name="depositAmount">this is the amount to be deposited</param>
-        /// <param name="cancellationTokenSource">t</param>
+        /// <param name="chainId">this is the chain id of the network</param>
+        /// <param name="amount">this is the amount to be deposited</param>
+        /// <param name="tokenName">token name</param>
+        /// <param name="cancellationTokenSource">this is an optional field </param>
 
-        /// <returns>Returns an object containing status and data</returns>
+        /// <returns>Returns an object(TransactionResponse)</returns>
         public async Task<TransactionResponse> WithdrawalAndWaitForReceiptAsync(int chainId, decimal amount, string tokenName, CancellationTokenSource cancellationTokenSource)
         {
             try
@@ -154,12 +158,14 @@ namespace XendFinanceSDK.Service
         }
 
         /// <summary>
-        /// Deposit in Flexible savings
+        /// WithdrawalAsync
         /// </summary>
-        /// <param name="depositAmount">this is the amount to be deposited</param>
-        /// <param name="cancellationTokenSource">t</param>
+        /// <param name="chainId">this is the chain id of the network</param>
+        /// <param name="amount">this is the amount to be deposited</param>
+        /// <param name="tokenName">token name</param>
+        /// <param name="cancellationTokenSource">this is an optional field </param>
 
-        /// <returns>Returns an object containing status and data</returns>
+        /// <returns>Returns the transactionHash containing status and data</returns>
         public async Task<string> WithdrawalAsync(int chainId, decimal amount, string tokenName, CancellationTokenSource cancellationTokenSource)
         {
             try
@@ -194,6 +200,12 @@ namespace XendFinanceSDK.Service
 
             }
         }
+        /// <summary>
+        /// GetPricePerFullShare
+        /// </summary>
+        /// <param name="chainId">this is the chain id of the network</param>
+        /// <param name="tokenName">token name</param>
+        /// <returns>Returns an object(TransactionResponse) containing status and data</returns>
 
         public async System.Threading.Tasks.Task<TransactionResponse> GetPricePerFullShare(int chainId,string tokenName)
         {
@@ -222,6 +234,12 @@ namespace XendFinanceSDK.Service
             }
 
         }
+        /// <summary>
+        /// GetShareBalance
+        /// </summary>
+        /// <param name="chainId">this is the amount to be deposited</param>
+        /// <param name="tokenName">token name</param>
+        /// <returns>Returns an object(TransactionResponse) containing status and data</returns>
         public async System.Threading.Tasks.Task<TransactionResponse> GetShareBalance(int chainId, string tokenName)
         {
             try
@@ -252,7 +270,14 @@ namespace XendFinanceSDK.Service
             }
 
         }
-        public async Task<TransactionResponse> GetAPYAsync( string tokenName, int chainId)
+
+        /// <summary>
+        /// GetAPYAsync
+        /// </summary>
+        /// <param name="chainId">this is the amount to be deposited</param>
+        /// <param name="tokenName">token name</param>
+        /// <returns>Returns an object(TransactionResponse) </returns>
+        public async Task<TransactionResponse> GetAPYAsync(int chainId, string tokenName)
         {
             Layer2TokenInfo layer2TokenInfo = _assets.FilterToken(tokenName, chainId, protocolName);
             if (layer2TokenInfo == null)
@@ -271,7 +296,14 @@ namespace XendFinanceSDK.Service
         }
 
 
-        public async Task<TransactionResponse> MaxAvailableSharesAsync(string tokenName, int chainId)
+        /// <summary>
+        /// MaxAvailableSharesAsync
+        /// </summary>
+        /// <param name="chainId">this is the amount to be deposited</param>
+        /// <param name="tokenName">token name</param>
+        /// <returns>Returns an object(TransactionResponse) </returns>
+
+        public async Task<TransactionResponse> MaxAvailableSharesAsync(int chainId, string tokenName)
         {
             Layer2TokenInfo layer2TokenInfo = _assets.FilterToken(tokenName, chainId, protocolName);
             if (layer2TokenInfo == null)

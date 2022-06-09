@@ -16,8 +16,8 @@ namespace XendFinanceSDK.Service.Interfaces
         Task<string> WithdrawalAsync(int chainId, decimal amount, string tokenName, CancellationTokenSource cancellationTokenSource);
         Task<TransactionResponse> GetPricePerFullShare(int chainId,string tokenName);
         Task<TransactionResponse> GetShareBalance(int chainId,string tokenName);
-        Task<TransactionResponse> GetAPYAsync(string tokenName, int chainId);
-        Task<TransactionResponse> MaxAvailableSharesAsync(string tokenName, int chainId);
+        Task<TransactionResponse> GetAPYAsync(int chainId,string tokenName);
+        Task<TransactionResponse> MaxAvailableSharesAsync(int chainId,string tokenName);
 
 
     }

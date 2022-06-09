@@ -77,5 +77,22 @@ namespace XendFinanceSDKTest
             TransactionResponse transactionResponse = xautoServer.WithdrawalAndWaitForReceiptAsync((int)ChainIds.BSCMainnet, 0, "BUSD", cancellationTokenSource).Result;
             Assert.IsTrue(transactionResponse.IsSuccessful);
         }
+        [Test]
+        public void Test_Ppfs_Should_Return_Success()
+        {
+            Task.Delay(10000);
+            TransactionResponse transactionResponse = xautoServer.GetPricePerFullShare((int)ChainIds.BSCMainnet, "BUSD").Result;
+            Assert.IsTrue(transactionResponse.IsSuccessful);
+        }
+
+      
+
+        [Test]
+        public void Test_Apy_Should_Return_Success()
+        {
+            Task.Delay(10000);
+            TransactionResponse transactionResponse = xautoServer.GetAPYAsync((int)ChainIds.BSCMainnet, "BUSD").Result;
+            Assert.IsTrue(transactionResponse.IsSuccessful);
+        }
     }
 }

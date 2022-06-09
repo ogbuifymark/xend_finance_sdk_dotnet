@@ -3,6 +3,7 @@ using Nethereum.Hex.HexTypes;
 using Nethereum.Web3;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading;
@@ -31,13 +32,14 @@ namespace XendFinanceSDK.Service
 
         }
         /// <summary>
-        /// Deposit in Flexible savings
+        /// DepositAndWaitForReceiptAsync
         /// </summary>
+        /// <param name="chainId">this is the chain id of the network</param>
         /// <param name="depositAmount">this is the amount to be deposited</param>
-        /// <param name="tokenName">this is the amount to be deposited</param>
-        /// <param name="cancellationTokenSource">t</param>
+        /// <param name="tokenName">token name</param>
+        /// <param name="cancellationTokenSource">this is an optional field </param>
 
-        /// <returns>Returns an object(TransactionResponse) containing status and data</returns>
+        /// <returns>Returns an object(TransactionResponse)</returns>
         public async Task<TransactionResponse> DepositAndWaitForReceiptAsync(int chainId, decimal depositAmount, string tokenName, CancellationTokenSource cancellationTokenSource)
         {
             try
@@ -71,13 +73,14 @@ namespace XendFinanceSDK.Service
         }
 
         /// <summary>
-        /// Deposit in Flexible savings
+        /// DepositAsync
         /// </summary>
+        /// <param name="chainId">this is the chain id of the network</param>
         /// <param name="depositAmount">this is the amount to be deposited</param>
-        /// <param name="tokenName">this is the amount to be deposited</param>
-        /// <param name="cancellationTokenSource">t</param>
+        /// <param name="tokenName">token name</param>
+        /// <param name="cancellationTokenSource">this is an optional field </param>
 
-        /// <returns>Returns the transactionHash containing status and data</returns>
+        /// <returns>Returns the transactionHash containing</returns>
         public async Task<string> DepositAsync(int chainId, decimal depositAmount, string tokenName, CancellationTokenSource cancellationTokenSource)
         {
             try
@@ -112,12 +115,13 @@ namespace XendFinanceSDK.Service
 
 
         /// <summary>
-        /// Deposit in Flexible savings
+        /// WithdrawalAndWaitForReceiptAsync
         /// </summary>
-        /// <param name="depositAmount">this is the amount to be deposited</param>
-        /// <param name="cancellationTokenSource">t</param>
-
-        /// <returns>Returns an object containing status and data</returns>
+        /// <param name="chainId">this is the chain id of the network</param>
+        /// <param name="amount">this is the amount to be deposited</param>
+        /// <param name="tokenName">token name</param>
+        /// <param name="cancellationTokenSource">this is an optional field </param>
+        /// <returns>Returns an object(TransactionResponse)</returns>
         public async Task<TransactionResponse> WithdrawalAndWaitForReceiptAsync(int chainId, decimal amount, string tokenName, CancellationTokenSource cancellationTokenSource)
         {
             try
@@ -154,11 +158,12 @@ namespace XendFinanceSDK.Service
         }
 
         /// <summary>
-        /// Deposit in Flexible savings
+        /// WithdrawalAsync 
         /// </summary>
-        /// <param name="depositAmount">this is the amount to be deposited</param>
-        /// <param name="cancellationTokenSource">t</param>
-
+        /// <param name="chainId">this is the chain id of the network</param>
+        /// <param name="amount">this is the amount to be deposited</param>
+        /// <param name="tokenName">token name</param>
+        /// <param name="cancellationTokenSource">this is an optional field </param>
         /// <returns>Returns an object containing status and data</returns>
         public async Task<string> WithdrawalAsync(int chainId,decimal amount, string tokenName, CancellationTokenSource cancellationTokenSource)
         {
@@ -195,6 +200,66 @@ namespace XendFinanceSDK.Service
             }
         }
 
+      
+
+        /// <summary>
+        /// GetPricePerFullShare
+        /// </summary>
+        /// <param name="chainId">this is the chain id of the network</param>
+        /// <param name="tokenName">token name</param>
+        /// <returns>Returns an object(TransactionResponse) containing status and data</returns>
+
+        public async System.Threading.Tasks.Task<TransactionResponse> GetPricePerFullShare(int chainId, string tokenName)
+        {
+            try
+            {
+                Layer2TokenInfo layer2TokenInfo = _assets.FilterToken(tokenName, chainId, protocolName);
+                if (layer2TokenInfo == null)
+                {
+                    throw new Exception("No token found");
+                }
+                Contract contract = _web3Client.GetContract(chainId, layer2TokenInfo.protocolAddress, layer2TokenInfo.protocolAbi);
+                Function ppfsFunction = contract.GetFunction(layer2TokenInfo.ppfsMethod);
+                BigInteger ppfs = await ppfsFunction.CallAsync<BigInteger>();
+
+                return new TransactionResponse
+                {
+                    IsSuccessful = true,
+                    data = ppfs
+                };
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+        }
+
+        /// <summary>
+        /// GetAPYAsync
+        /// </summary>
+        /// <param name="chainId">this is the amount to be deposited</param>
+        /// <param name="tokenName">token name</param>
+        /// <returns>Returns an object(TransactionResponse) </returns>
+        public async Task<TransactionResponse> GetAPYAsync(int chainId, string tokenName)
+        {
+            Layer2TokenInfo layer2TokenInfo = _assets.FilterToken(tokenName, chainId, protocolName);
+            if (layer2TokenInfo == null)
+            {
+                throw new Exception("No token found");
+            }
+            Contract contract = _web3Client.GetContract(chainId, layer2TokenInfo.protocolAddress, layer2TokenInfo.protocolAbi);
+            Function contractFunction = contract.GetFunction("recommend");
+            BigInteger apys = await contractFunction.CallAsync<BigInteger>();
+          
+            return new TransactionResponse
+            {
+                IsSuccessful = true,
+                data = apys
+            };
+        }
 
 
     }

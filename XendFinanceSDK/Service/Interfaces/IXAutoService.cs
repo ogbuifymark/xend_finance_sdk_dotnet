@@ -13,5 +13,8 @@ namespace XendFinanceSDK.Service.Interfaces
         Task<string> DepositAsync(int chainId, decimal depositAmount, string tokenName, CancellationTokenSource cancellationTokenSource);
         Task<TransactionResponse> WithdrawalAndWaitForReceiptAsync(int chainId, decimal amount, string tokenName, CancellationTokenSource cancellationTokenSource);
         Task<string> WithdrawalAsync(int chainId, decimal amount, string tokenName, CancellationTokenSource cancellationTokenSource);
+        Task<TransactionResponse> GetPricePerFullShare(int chainId, string tokenName);
+        //Task<TransactionResponse> GetShareBalance(int chainId, string tokenName);
+        Task<TransactionResponse> GetAPYAsync(int chainId, string tokenName);
     }
 }

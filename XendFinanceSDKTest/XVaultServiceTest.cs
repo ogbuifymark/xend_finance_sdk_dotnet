@@ -13,12 +13,11 @@ using static XendFinanceSDK.Models.Enums;
 
 namespace XendFinanceSDKTest
 {
-    [TestFixture]
     public class XVaultServiceTest
     {
         IXvaltService xvaltService;
 
-        [OneTimeSetUp]
+        [SetUp]
         public void Setup()
         {
             string privateKey = "";
@@ -100,7 +99,7 @@ namespace XendFinanceSDKTest
         public void Test_MaxAvailableSharesAsync_Should_Return_Success()
         {
             Task.Delay(10000);
-            TransactionResponse transactionResponse = xvaltService.MaxAvailableSharesAsync("BUSD", (int)ChainIds.BSCMainnet).Result;
+            TransactionResponse transactionResponse = xvaltService.MaxAvailableSharesAsync((int)ChainIds.BSCMainnet, "BUSD").Result;
             Assert.IsTrue(transactionResponse.IsSuccessful);
         }
 
@@ -108,7 +107,7 @@ namespace XendFinanceSDKTest
         public void Test_Apy_Should_Return_Success()
         {
             Task.Delay(10000);
-            TransactionResponse transactionResponse = xvaltService.GetAPYAsync("BUSD", (int)ChainIds.BSCMainnet).Result;
+            TransactionResponse transactionResponse = xvaltService.GetAPYAsync((int)ChainIds.BSCMainnet, "BUSD").Result;
             Assert.IsTrue(transactionResponse.IsSuccessful);
         }
     }

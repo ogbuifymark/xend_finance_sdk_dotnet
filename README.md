@@ -12,6 +12,12 @@ Build applications on-top of the Xend Finance Smart Contract Protocols.
 
 5. If prompted to review changes, select OK.
 
+#How to run the test
+1. Open XendFinanceSdkTest class Library 
+2. Open the XAutoServiceTest and on setup function add your private key 
+3. Open the XValtServiceTest and on setup function add your private key
+4. Run your test 
+
 #How to use the sdk
 
  On your Startup.cs class, you have to add the sdk as a service by either doing this 
