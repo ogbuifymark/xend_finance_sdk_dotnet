@@ -32,7 +32,8 @@ namespace XendFinanceSDKTest
         }
 
 
-        [Test]
+
+        [Test, Order(2)]
         public void TestDeposit_Should_Return_Deposit_Amount_Greater_Than_Zero()
         {
             Task.Delay(1000);
@@ -42,14 +43,14 @@ namespace XendFinanceSDKTest
         }
 
 
-        [Test, Order(2)]
-        public void TestDeposit_Should_Return_TransactionHash()
-        {
-            Task.Delay(10000);
-            CancellationTokenSource cancellationToken = null;
-            string transactionHash = xvaltService.DepositAsync((int)ChainIds.BSCMainnet, 0.01m, "BUSD", cancellationToken).Result;
-            Assert.IsNotNull(transactionHash);
-        }
+        //[Test, Order(9)]
+        //public void TestDeposit_Should_Return_TransactionHash()
+        //{
+        //    Task.Delay(10000);
+        //    CancellationTokenSource cancellationToken = null;
+        //    string transactionHash = xvaltService.DepositAsync((int)ChainIds.BSCMainnet, 0.01m, "BUSD", cancellationToken).Result;
+        //    Assert.IsNotNull(transactionHash);
+        //}
 
 
         [Test, Order(1)]
@@ -79,7 +80,7 @@ namespace XendFinanceSDKTest
             Assert.IsTrue(transactionResponse.IsSuccessful);
         }
 
-        [Test]
+        [Test, Order(5)]
         public void Test_Ppfs_Should_Return_Success()
         {
             Task.Delay(10000);
@@ -87,7 +88,7 @@ namespace XendFinanceSDKTest
             Assert.IsTrue(transactionResponse.IsSuccessful);
         }
 
-        [Test]
+        [Test, Order(6)]
         public void Test_Share_Balance_Should_Return_Success()
         {
             Task.Delay(10000);
@@ -95,7 +96,7 @@ namespace XendFinanceSDKTest
             Assert.IsTrue(transactionResponse.IsSuccessful);
         }
 
-        [Test]
+        [Test, Order(7)]
         public void Test_MaxAvailableSharesAsync_Should_Return_Success()
         {
             Task.Delay(10000);
@@ -103,7 +104,7 @@ namespace XendFinanceSDKTest
             Assert.IsTrue(transactionResponse.IsSuccessful);
         }
 
-        [Test]
+        [Test, Order(8)]
         public void Test_Apy_Should_Return_Success()
         {
             Task.Delay(10000);

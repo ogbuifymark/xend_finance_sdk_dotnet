@@ -9,7 +9,7 @@
     <PackageTags>xend, xend-finance, xendfinance</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/ogbuifymark/xend_finance_sdk_dotnet.git</RepositoryUrl>
-    <PackageIcon>logo.svg</PackageIcon>
+    <PackageIcon>logo.png</PackageIcon>
     <PackageIconUrl />
   </PropertyGroup>
 
@@ -88,7 +88,7 @@
     <None Update="Abi\xvMaticAutoWBTCV2.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="logo.svg">
+    <None Include="logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>

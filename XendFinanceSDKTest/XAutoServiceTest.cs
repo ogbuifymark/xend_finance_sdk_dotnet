@@ -35,32 +35,32 @@ namespace XendFinanceSDKTest
         [Test, Order(3)]
         public void TestDeposit_Should_Return_Deposit_Amount_Greater_Than_Zero()
         {
-            Task.Delay(1000);
+            Task.Delay(10000);
             CancellationTokenSource cancellationToken = null;
             var ex = Assert.ThrowsAsync<SmartContractRevertException>(async () => await xautoServer.DepositAndWaitForReceiptAsync((int)ChainIds.BSCMainnet, 0m, "BUSD", cancellationToken));
             Assert.That(ex.Message, Is.EqualTo("Smart contract error: deposit must be greater than 0"));
         }
 
 
-        [Test, Order(2)]
-        public void TestDeposit_Should_Return_TransactionHash()
-        {
-            Task.Delay(10000);
-            CancellationTokenSource cancellationToken = null;
-            string transactionHash = xautoServer.DepositAsync((int)ChainIds.BSCMainnet, 0.01m, "BUSD", cancellationToken).Result;
-            Assert.IsNotNull(transactionHash);
-        }
+        //[Test, Order(7)]
+        //public void TestDeposit_Should_Return_TransactionHash()
+        //{
+        //    Task.Delay(10000);
+        //    CancellationTokenSource cancellationToken = null;
+        //    string transactionHash = xautoServer.DepositAsync((int)ChainIds.BSCMainnet, 0.01m, "BUSD", cancellationToken).Result;
+        //    Assert.IsNotNull(transactionHash);
+        //}
 
 
         [Test, Order(1)]
         public void TestDeposit_Should_Return_Success()
         {
-            Task.Delay(1000);
+            Task.Delay(10000);
             CancellationTokenSource cancellationToken = null;
             TransactionResponse transactionResponse = xautoServer.DepositAndWaitForReceiptAsync((int)ChainIds.BSCMainnet, 0.01m, "BUSD", cancellationToken).Result;
             Assert.IsTrue(transactionResponse.IsSuccessful);
         }
-        [Test, Order(3)]
+        [Test, Order(6)]
         public void TestWithdrawl_Should_Return_Success()
         {
             Task.Delay(10000);
@@ -70,14 +70,16 @@ namespace XendFinanceSDKTest
         }
 
         [Test, Order(4)]
-        public void TestWithdrawl_Should_Also_Return_Success()
+        public void TestWithdrawl_Should_Return_Error()
         {
-            Task.Delay(1000);
+            Task.Delay(10000);
             CancellationTokenSource cancellationTokenSource = null;
-            TransactionResponse transactionResponse = xautoServer.WithdrawalAndWaitForReceiptAsync((int)ChainIds.BSCMainnet, 0, "BUSD", cancellationTokenSource).Result;
-            Assert.IsTrue(transactionResponse.IsSuccessful);
+            ////TransactionResponse transactionResponse = xautoServer.WithdrawalAndWaitForReceiptAsync((int)ChainIds.BSCMainnet, 0, "BUSD", cancellationTokenSource).Result;
+            var ex = Assert.ThrowsAsync<SmartContractRevertException>(async () => await xautoServer.WithdrawalAndWaitForReceiptAsync((int)ChainIds.BSCMainnet, 0, "BUSD", cancellationTokenSource));
+
+            Assert.That(ex.Message, Is.EqualTo("Smart contract error: withdraw must be greater than 0"));
         }
-        [Test]
+        [Test, Order(2)]
         public void Test_Ppfs_Should_Return_Success()
         {
             Task.Delay(10000);
@@ -85,9 +87,9 @@ namespace XendFinanceSDKTest
             Assert.IsTrue(transactionResponse.IsSuccessful);
         }
 
-      
 
-        [Test]
+
+        [Test, Order(5)]
         public void Test_Apy_Should_Return_Success()
         {
             Task.Delay(10000);
