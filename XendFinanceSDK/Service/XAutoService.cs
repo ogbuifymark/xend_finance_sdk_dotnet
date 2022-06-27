@@ -37,7 +37,7 @@ namespace XendFinanceSDK.Service
         /// <param name="chainId">this is the chain id of the network</param>
         /// <param name="depositAmount">this is the amount to be deposited</param>
         /// <param name="tokenName">token name</param>
-        /// <param name="cancellationTokenSource">this is an optional field </param>
+        /// <param name="cancellationTokenSource">this is the cancellation token</param>
 
         /// <returns>Returns an object(TransactionResponse)</returns>
         public async Task<TransactionResponse> DepositAndWaitForReceiptAsync(int chainId, decimal depositAmount, string tokenName, CancellationTokenSource cancellationTokenSource)
@@ -78,7 +78,7 @@ namespace XendFinanceSDK.Service
         /// <param name="chainId">this is the chain id of the network</param>
         /// <param name="depositAmount">this is the amount to be deposited</param>
         /// <param name="tokenName">token name</param>
-        /// <param name="cancellationTokenSource">this is an optional field </param>
+        /// <param name="cancellationTokenSource">this is the cancellation token</param>
 
         /// <returns>Returns the transactionHash containing</returns>
         public async Task<string> DepositAsync(int chainId, decimal depositAmount, string tokenName, CancellationTokenSource cancellationTokenSource)
@@ -120,7 +120,7 @@ namespace XendFinanceSDK.Service
         /// <param name="chainId">this is the chain id of the network</param>
         /// <param name="amount">this is the amount to be deposited</param>
         /// <param name="tokenName">token name</param>
-        /// <param name="cancellationTokenSource">this is an optional field </param>
+        /// <param name="cancellationTokenSource">this is the cancellation token</param>
         /// <returns>Returns an object(TransactionResponse)</returns>
         public async Task<TransactionResponse> WithdrawalAndWaitForReceiptAsync(int chainId, decimal amount, string tokenName, CancellationTokenSource cancellationTokenSource)
         {
@@ -163,7 +163,7 @@ namespace XendFinanceSDK.Service
         /// <param name="chainId">this is the chain id of the network</param>
         /// <param name="amount">this is the amount to be deposited</param>
         /// <param name="tokenName">token name</param>
-        /// <param name="cancellationTokenSource">this is an optional field </param>
+        /// <param name="cancellationTokenSource">this is the cancellation token</param>
         /// <returns>Returns an object containing status and data</returns>
         public async Task<string> WithdrawalAsync(int chainId,decimal amount, string tokenName, CancellationTokenSource cancellationTokenSource)
         {
@@ -240,7 +240,7 @@ namespace XendFinanceSDK.Service
         /// <summary>
         /// GetAPYAsync
         /// </summary>
-        /// <param name="chainId">this is the amount to be deposited</param>
+        /// <param name="chainId">this is the chain id of the network</param>
         /// <param name="tokenName">token name</param>
         /// <returns>Returns an object(TransactionResponse) </returns>
         public async Task<TransactionResponse> GetAPYAsync(int chainId, string tokenName)
