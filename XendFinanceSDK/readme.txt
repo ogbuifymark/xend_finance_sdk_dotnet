@@ -1,9 +1,6 @@
 # xend_finance_sdk_dotnet
 Build applications on-top of the Xend Finance Smart Contract Protocols.
 
-# Disclaimer
-I, Markanthony Ogbuify, fully own the code I submit. I guarantee there are no copyright or license restrictions. I further agree any code I submit will be in the public domain. Anyone can copy, change, derive further work from it without any restrictions.
-
 #Installation
 1. In Solution Explorer, right-click References and choose Manage NuGet Packages.
 

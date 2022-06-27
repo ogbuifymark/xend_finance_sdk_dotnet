@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using XendFinanceSDK.Models;
 using XendFinanceSDK.Service.Interfaces;
 
 namespace SdkClientWeb.Controllers
@@ -14,14 +15,75 @@ namespace SdkClientWeb.Controllers
     public class SDKController : ControllerBase
     {
         IXvaltService _xvaltService;
-        public SDKController(IXvaltService xvaltService)
+        IXAutoService _xAutoService;
+        public SDKController(IXvaltService xvaltService, IXAutoService xAutoService)
         {
             _xvaltService = xvaltService;
+            _xAutoService = xAutoService;
         }
-        public IActionResult Deposit([FromBody] DepositRequest depositRequest )
+
+        //XValt
+        public IActionResult XVaultDeposit([FromBody] RequestDto depositRequest )
         {
-            var response = _xvaltService.DepositAndWaitForReceiptAsync(depositRequest.chainId, depositRequest.amount, depositRequest.tokenName, CancellationTokenSource.CreateLinkedTokenSource());
-            return Ok(response);
+            TransactionResponse transactionResponse = _xvaltService.DepositAndWaitForReceiptAsync(depositRequest.chainId, depositRequest.amount.Value, depositRequest.tokenName, CancellationTokenSource.CreateLinkedTokenSource()).Result;
+
+            return Ok(transactionResponse);
+        }
+
+        public IActionResult XVaultWitdraw([FromBody] RequestDto request)
+        {
+            TransactionResponse transactionResponse = _xvaltService.WithdrawalAndWaitForReceiptAsync(request.chainId, request.amount.Value, request.tokenName, CancellationTokenSource.CreateLinkedTokenSource()).Result;
+
+            return Ok(transactionResponse);
+        }
+
+        public IActionResult XVaultPpfs([FromBody] RequestDto request)
+        {
+            TransactionResponse transactionResponse = _xvaltService.GetPricePerFullShare(request.chainId, "BUSD").Result;
+
+            return Ok(transactionResponse);
+        }
+
+        public IActionResult XVaultShareBalance([FromBody] RequestDto request)
+        {
+            TransactionResponse transactionResponse = _xvaltService.GetShareBalance(request.chainId, "BUSD").Result;
+
+            return Ok(transactionResponse);
+        }
+        public IActionResult XVaultAPy([FromBody] RequestDto request)
+        {
+            TransactionResponse transactionResponse = _xvaltService.GetAPYAsync(request.chainId, "BUSD").Result;
+
+            return Ok(transactionResponse);
+        }
+
+        //XAuto
+        public IActionResult XAutoDeposit([FromBody] RequestDto depositRequest)
+        {
+            TransactionResponse transactionResponse = _xAutoService.DepositAndWaitForReceiptAsync(depositRequest.chainId, depositRequest.amount.Value, depositRequest.tokenName, CancellationTokenSource.CreateLinkedTokenSource()).Result;
+
+            return Ok(transactionResponse);
+        }
+
+        public IActionResult XAutoWitdraw([FromBody] RequestDto request)
+        {
+            TransactionResponse transactionResponse = _xAutoService.WithdrawalAndWaitForReceiptAsync(request.chainId, request.amount.Value, request.tokenName, CancellationTokenSource.CreateLinkedTokenSource()).Result;
+
+            return Ok(transactionResponse);
+        }
+
+        public IActionResult XAutoPpfs([FromBody] RequestDto request)
+        {
+            TransactionResponse transactionResponse = _xAutoService.GetPricePerFullShare(request.chainId, "BUSD").Result;
+
+            return Ok(transactionResponse);
+        }
+
+        public IActionResult XAutoAPy([FromBody] RequestDto request)
+        {
+            TransactionResponse transactionResponse = _xAutoService.GetAPYAsync(request.chainId, "BUSD").Result;
+
+            return Ok(transactionResponse);
         }
     }
 }

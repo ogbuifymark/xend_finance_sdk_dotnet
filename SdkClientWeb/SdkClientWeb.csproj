@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\XendFinanceSDK\XendFinanceSDK.csproj" />
+    <PackageReference Include="XendFinanceSDK" Version="1.0.2" />
   </ItemGroup>
 
 

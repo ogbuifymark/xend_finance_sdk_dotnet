@@ -12,10 +12,10 @@ namespace SdkClientWeb
 
         public string Summary { get; set; }
     }
-    public class DepositRequest
+    public class RequestDto
     {
         public int chainId { get; set; }
         public string tokenName { get; set; }
-        public decimal amount { get; set; }
+        public decimal? amount { get; set; }
     }
 }
