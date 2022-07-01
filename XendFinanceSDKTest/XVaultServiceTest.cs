@@ -38,8 +38,10 @@ namespace XendFinanceSDKTest
         {
             Task.Delay(1000);
             CancellationTokenSource cancellationToken = null;
-            var ex = Assert.ThrowsAsync<SmartContractRevertException>(async () => await xvaltService.DepositAndWaitForReceiptAsync((int)ChainIds.BSCMainnet, 0m, "BUSD", cancellationToken));
-            Assert.That(ex.Message, Is.EqualTo("Smart contract error: deposit amount should be bigger than zero"));
+            //var ex = Assert.ThrowsAsync<SmartContractRevertException>(async () => await xvaltService.DepositAndWaitForReceiptAsync((int)ChainIds.BSCMainnet, 0m, "BUSD", cancellationToken));
+            TransactionResponse transactionResponse = xvaltService.WithdrawalAndWaitForReceiptAsync((int)ChainIds.BSCMainnet, 0, "BUSD", cancellationToken).Result;
+
+            Assert.That(transactionResponse.message, Is.EqualTo("Smart contract error: deposit amount should be bigger than zero"));
         }
 
 

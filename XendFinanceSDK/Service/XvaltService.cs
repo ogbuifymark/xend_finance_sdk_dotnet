@@ -66,8 +66,12 @@ namespace XendFinanceSDK.Service
             }
             catch (Exception ex)
             {
-                //Todo: implement logger
-                throw;
+                return new TransactionResponse
+                {
+                    IsSuccessful = false,
+                    data = ex,
+                    message = ex.Message
+                };
             }
         }
 
@@ -79,7 +83,7 @@ namespace XendFinanceSDK.Service
         /// <param name="tokenName">token name</param>
         /// <param name="cancellationTokenSource">this is the cancellation token</param>
         /// <returns>Returns the transactionHash containing status and data</returns>
-        public async Task<string> DepositAsync(int chainId, decimal depositAmount, string tokenName, CancellationTokenSource cancellationTokenSource)
+        public async Task<TransactionResponse> DepositAsync(int chainId, decimal depositAmount, string tokenName, CancellationTokenSource cancellationTokenSource)
         {
             try
             {
@@ -98,15 +102,24 @@ namespace XendFinanceSDK.Service
                 if (string.IsNullOrWhiteSpace(transactionHash))
                     throw new Exception("xVault deposit failed");
 
-                return transactionHash;
+                return new TransactionResponse
+                {
+                    IsSuccessful = true,
+                    TransactionHash = transactionHash,
+                };
+
 
 
 
             }
             catch (Exception ex)
             {
-                //Todo: implement logger
-                throw;
+                return new TransactionResponse
+                {
+                    IsSuccessful = false,
+                    data = ex,
+                    message = ex.Message
+                };
             }
         }
 
@@ -148,8 +161,12 @@ namespace XendFinanceSDK.Service
             }
             catch (Exception ex)
             {
-                //Todo: implement logger
-                throw;
+                return new TransactionResponse
+                {
+                    IsSuccessful = false,
+                    data = ex,
+                    message = ex.Message
+                };
 
             }
         }
@@ -162,7 +179,7 @@ namespace XendFinanceSDK.Service
         /// <param name="tokenName">token name</param>
         /// <param name="cancellationTokenSource">this is the cancellation token</param>
         /// <returns>Returns the transactionHash containing status and data</returns>
-        public async Task<string> WithdrawalAsync(int chainId, decimal amount, string tokenName, CancellationTokenSource cancellationTokenSource)
+        public async Task<TransactionResponse> WithdrawalAsync(int chainId, decimal amount, string tokenName, CancellationTokenSource cancellationTokenSource)
         {
             try
             {
@@ -186,13 +203,21 @@ namespace XendFinanceSDK.Service
 
                 string transactionHash = await _web3Client.SendTransactionAsync(layer2TokenInfo.network, layer2TokenInfo.protocolAddress, layer2TokenInfo.protocolAbi, "withdraw", GasPriceLevel.Average, withdrawalAmount, senderAddress, 0);
 
-                return transactionHash;
+                return new TransactionResponse
+                {
+                    IsSuccessful = true,
+                    TransactionHash = transactionHash,
+                };
 
             }
             catch (Exception ex)
             {
-                //Todo: implement logger
-                throw;
+                return new TransactionResponse
+                {
+                    IsSuccessful = false,
+                    data = ex,
+                    message = ex.Message
+                };
 
             }
         }
@@ -223,10 +248,14 @@ namespace XendFinanceSDK.Service
                 };
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                return new TransactionResponse
+                {
+                    IsSuccessful = false,
+                    data = ex,
+                    message = ex.Message
+                };
             }
 
         }
@@ -259,10 +288,15 @@ namespace XendFinanceSDK.Service
                 };
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                throw;
+                return new TransactionResponse
+                {
+                    IsSuccessful = false,
+                    data = ex,
+                    message = ex.Message
+                };
             }
 
         }

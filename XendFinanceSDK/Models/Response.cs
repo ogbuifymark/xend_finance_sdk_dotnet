@@ -17,4 +17,5 @@ namespace XendFinanceSDK.Models
         public string message { get; set; }
         public dynamic data { get; set; }
     }
+    
 }
