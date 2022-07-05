@@ -28,6 +28,7 @@ namespace SdkClientWeb
         {
             services.AddXendFinanceSdk(Configuration.GetValue<string>("privateKey"));
             services.AddControllers();
+            services.AddSwaggerGen();
 
         }
 
@@ -37,6 +38,11 @@ namespace SdkClientWeb
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            if (env.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
 
             app.UseHttpsRedirection();

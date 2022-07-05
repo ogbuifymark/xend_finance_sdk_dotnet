@@ -21,6 +21,12 @@ I, Markanthony Ogbuify, fully own the code I submit. I guarantee there are no co
 3. Open the XValtServiceTest and on setup function add your private key
 4. Run your test 
 
+# How to run the test app
+1. Set the "privateKey": "äja" in the app settings before trying to run the app
+2. Run the SdkClientWeb
+3. type this link "https://localhost:5002/swagger/index.html" to see the swagger documentation 
+
+
 # How to use the sdk
 
  On your Startup.cs class, you have to add the sdk as a service by either doing this 
